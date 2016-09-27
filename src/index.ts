@@ -1,7 +1,7 @@
-import { RensselaerPolytechnicInstituteCrawler } from "./crawlers/RensselaerPolytechnicInstituteCrawler";
+import { RensselaerCrawler } from "./crawlers/RensselaerCrawler";
 
 ((): void => {
-    const crawler = new RensselaerPolytechnicInstituteCrawler();
+    const crawler = new RensselaerCrawler();
 
     crawler.crawl();
 })();

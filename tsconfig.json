@@ -7,7 +7,7 @@
     "files": [
         "src/index.ts",
         "src/Crawler.ts",
-        "src/crawlers/RensselaerPolytechnicInstituteCrawler.ts",
+        "src/crawlers/RensselaerCrawler.ts",
         "src/models/IClub.ts",
         "src/models/IContact.ts",
         "src/models/ISchool.ts"

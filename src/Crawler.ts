@@ -28,10 +28,14 @@ export abstract class Crawler {
     /**
      * Initializes a new instance of the Crawler class.
      * 
-     * @param organization   Information on the organization being crawled.
+     * @param name   The name of the organization.
+     * @param landingPages   Initial landing page(s) to visit.
      */
-    protected constructor(organization: IOrganization, landingPages: string[]) {
-        this.organization = organization;
+    protected constructor(name: string, landingPages: string[]) {
+        this.organization = {
+            name,
+            groups: {}
+        };
         this.landingPages.push(...landingPages);
     }
 

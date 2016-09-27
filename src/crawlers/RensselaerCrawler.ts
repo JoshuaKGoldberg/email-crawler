@@ -9,10 +9,7 @@ export class RensselaerCrawler extends Crawler {
      */
     public constructor() {
         super(
-            {
-                name: "Rensselaer Polytechnic Institute",
-                clubs: {}
-            },
+            "Rensselaer Polytechnic Institute",
             [
                 "http://union.rpi.edu/clubs"
             ]);
