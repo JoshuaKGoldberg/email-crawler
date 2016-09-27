@@ -33,6 +33,25 @@ export abstract class Crawler {
     /**
      * 
      */
+    public crawl(): Promise<ISchool> {
+        this.visitedLandingPages.clear();
+        console.log(`Started crawling ${this.school.name}.`);
+
+        return createPhantom()
+            .then((phantom: PhantomJS): Promise<WebPage> => {
+                console.log("\tCreated phantom...");
+                return phantom.createPage();
+            })
+            .then((webPage: WebPage): Promise<void> => this.visitAllPages(webPage))
+            .then((): ISchool => {
+                console.log("Completed.");
+                return this.school;
+            });
+    }
+
+    /**
+     * 
+     */
     protected addLandingPage(landingPage: string): boolean {
         if (this.visitedLandingPages.has(landingPage)) {
             return false;
@@ -54,15 +73,7 @@ export abstract class Crawler {
     /**
      * 
      */
-    protected abstract crawlLandingPage(phantom: PhantomJS, webPage: WebPage, landingPage: string): Promise<void>;
-
-    /**
-     * 
-     */
-    private reset(): void {
-        this.landingPages.length = 0;
-        this.visitedLandingPages.clear();
-    }
+    protected abstract crawlLandingPage(webPage: WebPage, landingPage: string): Promise<void>;
 
     /**
      * 
@@ -81,40 +92,22 @@ export abstract class Crawler {
     /**
      * 
      */
-    private crawl(): Promise<ISchool> {
-        this.reset();
+    private visitAllPages(webPage: WebPage): Promise<void> {
+        const visitPage = (i: number): Promise<void> => {
+            if (i >= this.landingPages.length) {
+                return Promise.resolve();
+            }
 
-        return createPhantom()
-            .then((phantom: PhantomJS): Promise<ISchool> => {
-                let pendingWork: Promise<void> = Promise.resolve();
+            const landingPage: string = this.landingPages[i];
 
-                for (let i: number = 0; i < this.landingPages.length; i += 1) {
-                    const landingPage: string = this.landingPages[i];
-                    this.visitedLandingPages.add(landingPage);
+            return webPage.open(landingPage)
+                .then((): void => {
+                    console.log(`\tOpened ${landingPage}...`);
+                })
+                .then((): Promise<void> => this.crawlLandingPage(webPage, landingPage))
+                .then((): Promise<void> => visitPage(i + 1));
+        };
 
-                    pendingWork = pendingWork
-                        .then((): Promise<WebPage> => this.prepareLandingPage(phantom, landingPage))
-                        .then((webPage: WebPage): Promise<void> => {
-                            console.log(`Crawling ${landingPage}...`);
-                            return this.crawlLandingPage(phantom, webPage, landingPage);
-                        });
-                }
-
-                return pendingWork.then((): ISchool => this.school);
-            });
-    }
-
-    /**
-     * 
-     */
-    private prepareLandingPage(phantom: PhantomJS, landingPage: string): Promise<WebPage> {
-        let webPage: WebPage;
-
-        return phantom.createPage()
-            .then((createdPage: WebPage): Promise<any> => {
-                webPage = createdPage;
-                return webPage.open(landingPage);
-            })
-            .then((): WebPage => webPage);
+        return visitPage(0);
     }
 }

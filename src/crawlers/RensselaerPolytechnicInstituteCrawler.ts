@@ -21,7 +21,8 @@ export class RensselaerPolytechnicInstituteCrawler extends Crawler {
     /**
      * 
      */
-    protected crawlLandingPage(phantom: PhantomJS, webPage: WebPage, landingPage: string): Promise<void> {
+    protected crawlLandingPage(webPage: WebPage, landingPage: string): Promise<void> {
+        console.log("rpi crawling");
         // idea: continuously scroll down until the page height doesn't increase
         return Promise.resolve();
     }

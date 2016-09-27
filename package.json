@@ -1,7 +1,7 @@
 {
   "name": "email-crawler",
   "version": "1.0.0",
-  "description": "Crawls for emails from organization sites",
+  "description": "Crawls for emails from organization sites.",
   "main": "lib/index.js",
   "scripts": {
     "test": "gulp test"
