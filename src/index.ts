@@ -1,8 +1,8 @@
-import { ASUCrawler } from "./crawlers/implementations/ASUCrawler";
+import { OhioStateCrawler } from "./crawlers/implementations/OhioStateCrawler";
 import { IOrganization } from "./models/IOrganization";
 
 ((): void => {
-    new ASUCrawler()
+    new OhioStateCrawler()
         .crawl()
         .then((organization: IOrganization): void => {
             console.log("org", JSON.stringify(organization));

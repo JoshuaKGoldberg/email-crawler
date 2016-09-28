@@ -10,8 +10,9 @@
         "src/crawlers/TextCrawler.ts",
         "src/crawlers/WebPageCrawler.ts",
         "src/crawlers/implementations/ASUCrawler.ts",
-        "src/crawlers/implementations/StRoseCrawler.ts",
         "src/crawlers/implementations/MITSloanCrawler.ts",
+        "src/crawlers/implementations/OhioStateCrawler.ts",
+        "src/crawlers/implementations/StRoseCrawler.ts",
         "src/models/IClub.ts",
         "src/models/IContact.ts",
         "src/models/ISchool.ts"

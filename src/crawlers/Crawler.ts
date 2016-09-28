@@ -11,13 +11,13 @@ import { IOrganization } from "../models/IOrganization";
 /**
  * Parses a resource.
  * 
- * @param resource   The resource being parsed.
- * @param url   The resource's url.
+ * @param parsed   The parsed resource value.
+ * @param resource   The resource's descriptor.
  * @returns A Promise for the parsed resource.
  * @type TResource   The resource's data type.
  */
 export interface IResourceParser<TResource> {
-    (resource: TResource, url: string): Promise<void>;
+    (parsed: TResource, resource: IResourceDescriptor<TResource>): Promise<void>;
 }
 
 /**
@@ -30,6 +30,11 @@ export interface IResourceDescriptor<TResource> {
      * Parses the resource.
      */
     callback: IResourceParser<TResource>;
+
+    /**
+     * Any organization this is associated with.
+     */
+    organization?: string;
 
     /**
      * Any request options.
@@ -173,14 +178,14 @@ export abstract class Crawler<TResource> {
 
             const resource: IResourceDescriptor<TResource> = this.resources[i];
 
-            console.log(`\tOpening ${resource.url}...`);
+            console.log(`\t[${i} of ${this.resources.length}] Opening ${resource.url}...`);
 
             return rp(resource.url, resource.options)
                 .then((contents: string): Promise<TResource> => {
                     console.log(`\tOpened ${resource.url}...`);
                     return this.loadResource(contents);
                 })
-                .then((parsed: TResource): Promise<void> => resource.callback.call(this, parsed, resource.url))
+                .then((parsed: TResource): Promise<void> => resource.callback.call(this, parsed, resource))
                 .then((): Promise<void> => visitResource(i + 1));
         };
 

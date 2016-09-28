@@ -5,6 +5,7 @@ import * as Promise from "bluebird";
 import "cheerio";
 
 import { IOrganization } from "../../models/IOrganization";
+import { IResourceDescriptor } from "../Crawler";
 import { JsonCrawler } from "../JsonCrawler";
 import { TextCrawler } from "../TextCrawler";
 
@@ -57,10 +58,10 @@ export class ASUCrawler extends JsonCrawler<IAsuResponse> {
     /**
      * Crawls the page of all organizations.
      */
-    private crawlOrganizationsResponse(response: IAsuResponse, url: string): Promise<void> {
+    private crawlOrganizationsResponse(response: IAsuResponse, resource: IResourceDescriptor<IAsuResponse>): Promise<void> {
         const crawls: Promise<void>[] = response.data
             .map((descriptor: IAsuOrganizationDescriptor): Promise<void> => {
-                return new ASUOrganizationCrawler(descriptor.links.web + "/display_profile")
+                return new ASUOrganizationCrawler(descriptor.links.web + "/display_profile", descriptor.name)
                     .crawl()
                     .then((results: IOrganization): void => {
                         this.addOrganization(results);
@@ -79,13 +80,15 @@ export class ASUOrganizationCrawler extends TextCrawler {
      * Initializes a new instance of the ASUOrganizationCrawler class.
      * 
      * @param url   The organization's API URL.
+     * @param organization   A friendly name of the organiation.
      */
-    constructor(url: string) {
+    constructor(url: string, name: string) {
         super(url);
 
         this.addResource(
             {
                 callback: this.crawlOrganizationResponse,
+                organization: name,
                 options: {
                     headers: {
                         /* tslint:disable max-line-length */
@@ -114,7 +117,7 @@ export class ASUOrganizationCrawler extends TextCrawler {
     /**
      * Crawls an organization's API response.
      */
-    private crawlOrganizationResponse(text: string, url: string): Promise<void> {
+    private crawlOrganizationResponse(text: string, resource: IResourceDescriptor<string>): Promise<void> {
         const emails: string[] = text.match(/mailto\:.*\"/gi);
 
         if (!emails) {
@@ -127,7 +130,7 @@ export class ASUOrganizationCrawler extends TextCrawler {
             .replace("\"", "")
             .replace(">", "");
 
-        this.addContact(url, { email });
+        this.addContact(resource.organization, { email });
 
         return Promise.resolve();
     }

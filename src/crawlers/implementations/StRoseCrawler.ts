@@ -5,6 +5,7 @@ import * as Promise from "bluebird";
 import "cheerio";
 
 import { IContact } from "../../models/IContact";
+import { IResourceDescriptor } from "../Crawler";
 import { WebPageCrawler } from "../WebPageCrawler";
 
 export class StRoseCrawler extends WebPageCrawler {
@@ -23,7 +24,7 @@ export class StRoseCrawler extends WebPageCrawler {
     /**
      * Crawls the page of all organizations.
      */
-    private crawlOrganizationsPage($: CheerioStatic, url: string): Promise<void> {
+    private crawlOrganizationsPage($: CheerioStatic, resource: IResourceDescriptor<CheerioStatic>): Promise<void> {
         const contacts: IContact[] = [];
 
         $(".typography p")
