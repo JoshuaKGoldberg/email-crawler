@@ -9,31 +9,37 @@ import { JsonCrawler } from "../JsonCrawler";
 import { TextCrawler } from "../TextCrawler";
 
 /**
- * 
+ * An initial response from the ASU page.
  */
 interface IAsuResponse {
+    /**
+     * Descriptors of ASU organizations.
+     */
     data: IAsuOrganizationDescriptor[];
 }
 
 /**
- * 
+ * A description of an ASU organization.
  */
 interface IAsuOrganizationDescriptor {
+    /**
+     * The name of the organization.
+     */
     name: string;
+
+    /**
+     * Links to organiation resources.
+     */
     links: {
+        /**
+         * The web URL for the organization.
+         */
         web: string;
     };
 }
 
 /**
- * 
- */
-interface IAsuOrganizationResponse {
-    // ...
-}
-
-/**
- * 
+ * Crawls the ASU OrgSync website for organizations.
  */
 export class ASUCrawler extends JsonCrawler<IAsuResponse> {
     /**
@@ -54,35 +60,32 @@ export class ASUCrawler extends JsonCrawler<IAsuResponse> {
     private crawlOrganizationsResponse(response: IAsuResponse, url: string): Promise<void> {
         const crawls: Promise<void>[] = response.data
             .map((descriptor: IAsuOrganizationDescriptor): Promise<void> => {
-                const orgCrawler = new ASUOrganizationCrawler(descriptor.links.web + "/display_profile");
-
-                return orgCrawler.crawl()
+                return new ASUOrganizationCrawler(descriptor.links.web + "/display_profile")
+                    .crawl()
                     .then((results: IOrganization): void => {
                         this.addOrganization(results);
                     });
-                
             });
 
-        return Promise.all(crawls)
-            .then((): void => {
-                console.log("done crawling");
-            });
+        return Promise.all(crawls) as Promise<any>;
     }
 }
 
 /**
- * 
+ * Crawls a single ASU organization's API response.
  */
 export class ASUOrganizationCrawler extends TextCrawler {
     /**
+     * Initializes a new instance of the ASUOrganizationCrawler class.
      * 
+     * @param url   The organization's API URL.
      */
     constructor(url: string) {
         super(url);
 
         this.addResource(
             {
-                callback: this.crawlOrganizationPage,
+                callback: this.crawlOrganizationResponse,
                 options: {
                     headers: {
                         /* tslint:disable max-line-length */
@@ -109,9 +112,9 @@ export class ASUOrganizationCrawler extends TextCrawler {
     }
 
     /**
-     * Crawls an organization's webpage.
+     * Crawls an organization's API response.
      */
-    private crawlOrganizationPage(text: string, url: string): Promise<void> {
+    private crawlOrganizationResponse(text: string, url: string): Promise<void> {
         const emails: string[] = text.match(/mailto\:.*\"/gi);
 
         if (!emails) {

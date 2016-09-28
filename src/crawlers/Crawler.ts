@@ -9,18 +9,36 @@ import { IGroup } from "../models/IGroup";
 import { IOrganization } from "../models/IOrganization";
 
 /**
+ * Parses a resource.
  * 
+ * @param resource   The resource being parsed.
+ * @param url   The resource's url.
+ * @returns A Promise for the parsed resource.
+ * @type TResource   The resource's data type.
  */
-export interface IResourceCallback<TResource> {
+export interface IResourceParser<TResource> {
     (resource: TResource, url: string): Promise<void>;
 }
 
 /**
+ * A resource descriptor.
  * 
+ * @type TResource   The resource's data type.
  */
-export interface IResource<TResource> {
-    callback: IResourceCallback<TResource>;
+export interface IResourceDescriptor<TResource> {
+    /**
+     * Parses the resource.
+     */
+    callback: IResourceParser<TResource>;
+
+    /**
+     * Any request options.
+     */
     options?: rp.Options;
+
+    /**
+     * The resource's URL.
+     */
     url: string;
 }
 
@@ -33,7 +51,7 @@ export abstract class Crawler<TResource> {
     /**
      * Collected resources that can be consumed.
      */
-    private resources: IResource<TResource>[] = [];
+    private resources: IResourceDescriptor<TResource>[] = [];
 
     /**
      * Resources that have already been consumed.
@@ -86,7 +104,7 @@ export abstract class Crawler<TResource> {
      * @param resource   Desiption of the resource.
      * @returns Whether the resource was added (is new).
      */
-    protected addResource(resource: IResource<TResource>): boolean {
+    protected addResource(resource: IResourceDescriptor<TResource>): boolean {
         if (this.consumedResources.has(resource.url)) {
             return false;
         }
@@ -107,7 +125,9 @@ export abstract class Crawler<TResource> {
     }
 
     /**
+     * Adds all groups from an organization.
      * 
+     * @param organization   An existing organization.
      */
     protected addOrganization(organization: IOrganization): void {
         for (const groupName in organization.groups) {
@@ -151,7 +171,7 @@ export abstract class Crawler<TResource> {
                 return Promise.resolve();
             }
 
-            const resource: IResource<TResource> = this.resources[i];
+            const resource: IResourceDescriptor<TResource> = this.resources[i];
 
             console.log(`\tOpening ${resource.url}...`);
 

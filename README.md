@@ -12,36 +12,11 @@ gulp build
 
 ## Usage
 
-Subclass the `Crawler` class.
-Your new class will have to implement the `crawlLandingPage` method, which takes in the Phantom `WebPage` and its URL.
+See samples in `src/crawlers/implementations`.
 
-Its constructor should call `super` with an `IOrganization` description and initial landing page(s).
-
-You can use `this.addLandingPage` to add a new page that will be crawled (if it wasn't yet), and `this.addContact` to add new contact information to a group.
-
-For example:
-
-```typescript
-import { Crawler } from "Crawler";
-
-class SampleCrawler extends Crawler {
-    constructor() {
-        super(
-            "Google",
-            [
-                "www.google.com/"
-            ]);
-    }
-
-    protected crawlLandingPage(webPage: WebPage, landingPage: string): Promise<void> {
-        // ...will fill out later
-    }
-}
-```
-
-```javascript
-new SampleCrawler().crawl()
-    .then(organization => console.log("Gog", organization));
-```
-
-See https://www.npmjs.com/package/phantom
+The abstract `Crawler` class manages logic for visiting resources (such as web pages), recording contact info, and adding more resources.
+It takes in resources as string URLs, perform some transformation logic on the contents, and supply hooks to deal with the results.
+Three abstract implementations exist so far:
+* `JsonCrawler`** - Parses the results as JSON.
+* `TextCrawler`** - Directly passes the string results.
+* `WebPageCrawler`** - Uses Cheerio to parse an HTML web page and passes the Cheerio object.
