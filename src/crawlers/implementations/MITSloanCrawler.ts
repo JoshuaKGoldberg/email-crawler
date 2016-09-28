@@ -14,9 +14,10 @@ export class MITSloanCrawler extends WebPageCrawler {
     public constructor() {
         super("MIT Sloan");
 
-        this.addResource(
-            "http://mitsloan.mit.edu/student-life/clubs/",
-            this.crawlOrganizationsPage);
+        this.addResource({
+            callback: this.crawlOrganizationsPage,
+            url: "http://mitsloan.mit.edu/student-life/clubs/"
+        });
     }
 
     /**

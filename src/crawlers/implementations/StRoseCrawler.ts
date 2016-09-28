@@ -14,9 +14,10 @@ export class StRoseCrawler extends WebPageCrawler {
     public constructor() {
         super("MIT Sloan");
 
-        this.addResource(
-            "https://www.strose.edu/student-life/leadership-opportunities/student-association/student-association-clubs/",
-            this.crawlOrganizationsPage);
+        this.addResource({
+            callback: this.crawlOrganizationsPage,
+            url: "https://www.strose.edu/student-life/leadership-opportunities/student-association/student-association-clubs/",
+        });
     }
 
     /**

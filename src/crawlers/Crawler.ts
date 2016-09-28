@@ -20,6 +20,7 @@ export interface IResourceCallback<TResource> {
  */
 export interface IResource<TResource> {
     callback: IResourceCallback<TResource>;
+    options?: rp.Options;
     url: string;
 }
 
@@ -67,7 +68,6 @@ export abstract class Crawler<TResource> {
 
         return this.consumeAllResources()
             .then((): IOrganization => {
-                console.log("Completed.");
                 return this.organization;
             });
     }
@@ -83,16 +83,15 @@ export abstract class Crawler<TResource> {
     /**
      * Adds a resource if it didn't yet exist.
      * 
-     * @param url   A new resource's URL.
-     * @param callback   A callback for the resource.
+     * @param resource   Desiption of the resource.
      * @returns Whether the resource was added (is new).
      */
-    protected addResource(url: string, callback: IResourceCallback<TResource>): boolean {
-        if (this.consumedResources.has(url)) {
+    protected addResource(resource: IResource<TResource>): boolean {
+        if (this.consumedResources.has(resource.url)) {
             return false;
         }
 
-        this.resources.push({ url, callback });
+        this.resources.push(resource);
         return true;
     }
 
@@ -105,6 +104,23 @@ export abstract class Crawler<TResource> {
      */
     protected addContact(groupName: string, contact: IContact): void {
         this.getClub(groupName).contacts.push(contact);
+    }
+
+    /**
+     * 
+     */
+    protected addOrganization(organization: IOrganization): void {
+        for (const groupName in organization.groups) {
+            if (!(groupName in organization.groups)) {
+                continue;
+            }
+
+            const group: IGroup = organization.groups[groupName];
+
+            for (const contact of group.contacts) {
+                this.addContact(groupName, contact);
+            }
+        }
     }
 
     /**
@@ -139,7 +155,7 @@ export abstract class Crawler<TResource> {
 
             console.log(`\tOpening ${resource.url}...`);
 
-            return rp(resource.url)
+            return rp(resource.url, resource.options)
                 .then((contents: string): Promise<TResource> => {
                     console.log(`\tOpened ${resource.url}...`);
                     return this.loadResource(contents);
