@@ -37,7 +37,7 @@ export class OhioStateCrawler extends WebPageCrawler {
         for (const organization of organizations) {
             this.addResource({
                 callback: this.crawlOrganizationPage,
-                organization: name,
+                organization: organization.name,
                 url: "http://activities.osu.edu" + organization.url
             });
         }
