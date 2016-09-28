@@ -1,25 +1,22 @@
-/// <reference path="../../node_modules/@types/cheerio/index.d.ts" />
+/// <reference path="../../../node_modules/@types/bluebird/index.d.ts" />
+/// <reference path="../../../node_modules/@types/cheerio/index.d.ts" />
 
 import * as Promise from "bluebird";
 import "cheerio";
 
-import { Crawler, ILandingPageCallback } from "../crawler";
-import { IContact } from "../models/IContact";
+import { IContact } from "../../models/IContact";
+import { WebPageCrawler } from "../WebPageCrawler";
 
-interface ILinkAttribs {
-    href: string;
-}
-
-export class StRoseCrawler extends Crawler {
+export class StRoseCrawler extends WebPageCrawler {
     /**
      * Initializes a new instance of the StRoseCrawler class.
      */
     public constructor() {
         super("MIT Sloan");
 
-        this.addLandingPage(
+        this.addResource(
             "https://www.strose.edu/student-life/leadership-opportunities/student-association/student-association-clubs/",
-            this.crawlOrganizationsPage as ILandingPageCallback<this>);
+            this.crawlOrganizationsPage);
     }
 
     /**

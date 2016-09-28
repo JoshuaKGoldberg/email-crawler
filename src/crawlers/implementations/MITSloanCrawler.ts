@@ -1,23 +1,22 @@
-/// <reference path="../../node_modules/@types/cheerio/index.d.ts" />
+/// <reference path="../../../node_modules/@types/bluebird/index.d.ts" />
+/// <reference path="../../../node_modules/@types/cheerio/index.d.ts" />
 
 import * as Promise from "bluebird";
 import "cheerio";
 
-import { Crawler, ILandingPageCallback } from "../crawler";
-import { IContact } from "../models/IContact";
+import { IContact } from "../../models/IContact";
+import { WebPageCrawler } from "../WebPageCrawler";
 
-interface ILinkAttribs {
-    href: string;
-}
-
-export class MITSloanCrawler extends Crawler {
+export class MITSloanCrawler extends WebPageCrawler {
     /**
      * Initializes a new instance of the MITSloanCrawler class.
      */
     public constructor() {
         super("MIT Sloan");
 
-        this.addLandingPage("http://mitsloan.mit.edu/student-life/clubs/", this.crawlOrganizationsPage as ILandingPageCallback<this>);
+        this.addResource(
+            "http://mitsloan.mit.edu/student-life/clubs/",
+            this.crawlOrganizationsPage);
     }
 
     /**
@@ -29,7 +28,6 @@ export class MITSloanCrawler extends Crawler {
         $("table.MITTable tr")
             .each(function (i: number, rowElement: CheerioElement): void {
                 const cells: Cheerio = $(this).find("td");
-
                 const name: string = cells.first().text();
                 const email: string = cells.last().text();
 
@@ -41,6 +39,5 @@ export class MITSloanCrawler extends Crawler {
         }
 
         return Promise.resolve();
-        // idea: continuously scroll down until the page height doesn't increase
     }
 }

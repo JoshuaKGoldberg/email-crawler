@@ -1,4 +1,4 @@
-import { StRoseCrawler } from "./crawlers/StRoseCrawler";
+import { StRoseCrawler } from "./crawlers/implementations/StRoseCrawler";
 import { IOrganization } from "./models/IOrganization";
 
 ((): void => {
