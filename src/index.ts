@@ -1,10 +1,10 @@
-import { StonyBrookCrawler } from "./crawlers/StonyBrookCrawler";
+import { MITSloanCrawler } from "./crawlers/MITSloanCrawler";
 import { IOrganization } from "./models/IOrganization";
 
 ((): void => {
-    new StonyBrookCrawler()
+    new MITSloanCrawler()
         .crawl()
         .then((organization: IOrganization): void => {
-            console.log("org", organization);
+            console.log("org", JSON.stringify(organization));
         });
 })();

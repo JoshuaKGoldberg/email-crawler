@@ -6,8 +6,9 @@
     "files": [
         "src/index.ts",
         "src/Crawler.ts",
-        "src/crawlers/StonyBrookCrawler.ts",
         "src/crawlers/RensselaerCrawler.ts",
+        "src/crawlers/StonyBrookCrawler.ts",
+        "src/crawlers/MITSloanCrawler.ts",
         "src/models/IClub.ts",
         "src/models/IContact.ts",
         "src/models/ISchool.ts"
