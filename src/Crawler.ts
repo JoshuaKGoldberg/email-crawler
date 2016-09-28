@@ -1,10 +1,23 @@
-/// <reference path="../typings/phantom.d.ts" />
+/// <reference path="../node_modules/@types/bluebird/index.d.ts" />
+/// <reference path="../node_modules/@types/cheerio/index.d.ts" />
+/// <reference path="../node_modules/@types/request-promise/index.d.ts" />
 
-import { create as createPhantom, WebPage, PhantomJS } from "phantom";
+import * as Promise from "bluebird";
+import "cheerio";
+import * as rp from "request-promise";
 
-import { IGroup } from "./models/IGroup";
 import { IContact } from "./models/IContact";
+import { IGroup } from "./models/IGroup";
 import { IOrganization } from "./models/IOrganization";
+
+export interface ILandingPageCallback<T> {
+    (this: T, $: CheerioStatic, url: string): Promise<void>;
+}
+
+export interface ILandingPage<T> {
+    callback: ILandingPageCallback<T>;
+    url: string;
+}
 
 /**
  * Abstracted contact info crawler for an organization's webpages.
@@ -13,7 +26,7 @@ export abstract class Crawler {
     /**
      * Collected landing pages that can be visited.
      */
-    private landingPages: string[] = [];
+    private landingPages: ILandingPage<this>[] = [];
 
     /**
      * Landing pages that have already been visited.
@@ -29,14 +42,12 @@ export abstract class Crawler {
      * Initializes a new instance of the Crawler class.
      * 
      * @param name   The name of the organization.
-     * @param landingPages   Initial landing page(s) to visit.
      */
-    protected constructor(name: string, landingPages: string[]) {
+    protected constructor(name: string) {
         this.organization = {
             name,
             groups: {}
         };
-        this.landingPages.push(...landingPages);
     }
 
     /**
@@ -48,12 +59,7 @@ export abstract class Crawler {
         this.visitedLandingPages.clear();
         console.log(`Started crawling ${this.organization.name}.`);
 
-        return createPhantom()
-            .then((phantom: PhantomJS): Promise<WebPage> => {
-                console.log("\tCreated phantom...");
-                return phantom.createPage();
-            })
-            .then((webPage: WebPage): Promise<void> => this.visitAllPages(webPage))
+        return this.visitAllPages()
             .then((): IOrganization => {
                 console.log("Completed.");
                 return this.organization;
@@ -63,15 +69,16 @@ export abstract class Crawler {
     /**
      * Adds a landing page if it didn't yet exist.
      * 
-     * @param landingPage   A new landing page's URL.
+     * @param url   A new landing page's URL.
+     * @param callback   A callback for the landing page.
      * @returns Whether the landing page was added (not yet added).
      */
-    protected addLandingPage(landingPage: string): boolean {
-        if (this.visitedLandingPages.has(landingPage)) {
+    protected addLandingPage(url: string, callback: ILandingPageCallback<this>): boolean {
+        if (this.visitedLandingPages.has(url)) {
             return false;
         }
 
-        this.landingPages.push(landingPage);
+        this.landingPages.push({ url, callback });
         return true;
     }
 
@@ -85,15 +92,6 @@ export abstract class Crawler {
     protected addContact(groupName: string, contact: IContact): void {
         this.getClub(groupName).contacts.push(contact);
     }
-
-    /**
-     * Crawls a landing page for new contact info and/or landing pages.
-     * 
-     * @param webPage   The Phantom page for scripting.
-     * @param landingPage   The URL of the page.
-     * @returns A Promise for crawling the page.
-     */
-    protected abstract crawlLandingPage(webPage: WebPage, landingPage: string): Promise<void>;
 
     /**
      * Retrieves a group, creating it if it doesn't yet exist.
@@ -115,22 +113,24 @@ export abstract class Crawler {
     /**
      * Visits all landing pages as they're added.
      * 
-     * @param webPage   The Phantom page visiting the landing pages.
      * @returns A Promise for visiting all landing pages.
      */
-    private visitAllPages(webPage: WebPage): Promise<void> {
+    private visitAllPages(): Promise<void> {
         const visitPage = (i: number): Promise<void> => {
             if (i >= this.landingPages.length) {
                 return Promise.resolve();
             }
 
-            const landingPage: string = this.landingPages[i];
+            const landingPage: ILandingPage<this> = this.landingPages[i];
 
-            return webPage.open(landingPage)
-                .then((): void => {
-                    console.log(`\tOpened ${landingPage}...`);
+            console.log(`\tOpening ${landingPage.url}...`);
+
+            return rp(landingPage.url)
+                .then((contents: string): CheerioStatic => {
+                    console.log(`\tOpened ${landingPage.url}...`);
+                    return cheerio.load(contents);
                 })
-                .then((): Promise<void> => this.crawlLandingPage(webPage, landingPage))
+                .then(($: CheerioStatic): Promise<void> => landingPage.callback.call(this, $, landingPage.url))
                 .then((): Promise<void> => visitPage(i + 1));
         };
 
