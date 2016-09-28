@@ -5,6 +5,7 @@ import * as Promise from "bluebird";
 import "cheerio";
 
 import { IOrganization } from "../../models/IOrganization";
+import { IResourceDescriptor } from "../Crawler";
 import { JsonCrawler } from "../JsonCrawler";
 import { TextCrawler } from "../TextCrawler";
 
@@ -13,13 +14,13 @@ import { TextCrawler } from "../TextCrawler";
  */
 interface IOrgSyncResponse {
     /**
-     * Descriptors of ASU organizations.
+     * Descriptors of organizations.
      */
     data: IOrgSyncDescriptor[];
 }
 
 /**
- * A description of an ASU organization.
+ * A description of an organization.
  */
 interface IOrgSyncDescriptor {
     /**
@@ -43,11 +44,12 @@ interface IOrgSyncDescriptor {
  */
 export class OrgSyncCrawler extends JsonCrawler<IOrgSyncResponse> {
     /**
-     * Initializes a new instance of the ASUCrawler class.
+     * Initializes a new instance of the OrgSyncCrawler class.
+     * @param name  The name of the association the orgs are under
      * @param url   The url to fetch list of orgs e.g. https://api.orgsync.com/api/v3/communities/334/portals?key=wI3OYsSEiIuWn5UbKuNKz2LgTLAsbpdIsi9lHGr0R2E&all=true
      */
-    public constructor(url: string) {
-        super("ASU");
+    public constructor(name: string, url: string) {
+        super(name);
 
         this.addResource({
             callback: this.crawlOrganizationsResponse,
@@ -58,7 +60,7 @@ export class OrgSyncCrawler extends JsonCrawler<IOrgSyncResponse> {
     /**
      * Crawls the page of all organizations.
      */
-    private crawlOrganizationsResponse(response: IOrgSyncResponse, url: string): Promise<void> {
+    private crawlOrganizationsResponse(response: IOrgSyncResponse, resource: IResourceDescriptor<IOrgSyncResponse>): Promise<void> {
         const crawls: Promise<void>[] = response.data
             .map((descriptor: IOrgSyncDescriptor): Promise<void> => {
                 return new OrgSyncOrganizationCrawler(descriptor.links.web + "/display_profile", descriptor.name)
@@ -73,24 +75,21 @@ export class OrgSyncCrawler extends JsonCrawler<IOrgSyncResponse> {
 }
 
 /**
- * Crawls a single ASU organization's API response.
+ * Crawls a single organization's API response.
  */
 export class OrgSyncOrganizationCrawler extends TextCrawler {
-
-    private organizationName: string;
-
     /**
-     * Initializes a new instance of the ASUOrganizationCrawler class.
+     * Initializes a new instance of the OrgSyncOrganizationCrawler class.
      * 
      * @param url   The organization's API URL.
      */
     constructor(url: string, name: string) {
         super(url);
-        this.organizationName = name;
 
         this.addResource(
             {
                 callback: this.crawlOrganizationResponse,
+                organization: name,
                 options: {
                     headers: {
                         /* tslint:disable max-line-length */
@@ -119,7 +118,7 @@ export class OrgSyncOrganizationCrawler extends TextCrawler {
     /**
      * Crawls an organization's API response.
      */
-    private crawlOrganizationResponse(text: string, url: string): Promise<void> {
+    private crawlOrganizationResponse(text: string, resource: IResourceDescriptor<string>): Promise<void> {
         const emails: string[] = text.match(/mailto\:.*\"/gi);
 
         if (!emails) {
@@ -133,7 +132,7 @@ export class OrgSyncOrganizationCrawler extends TextCrawler {
             .replace("\\", "")
             .replace(">", "");
 
-        this.addContact(this.organizationName, { email });
+        this.addContact(resource.organization, { email });
 
         return Promise.resolve();
     }
