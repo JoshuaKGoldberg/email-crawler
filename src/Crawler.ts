@@ -3,7 +3,7 @@
 /// <reference path="../node_modules/@types/request-promise/index.d.ts" />
 
 import * as Promise from "bluebird";
-import "cheerio";
+import * as cheerio from "cheerio";
 import * as rp from "request-promise";
 
 import { IContact } from "./models/IContact";
