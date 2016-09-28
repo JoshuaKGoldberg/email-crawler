@@ -10,7 +10,14 @@ npm install
 gulp build
 ```
 
-## Usage
+## Running
+
+```
+node lib/index.js
+``` 
+
+
+## Development
 
 See samples in `src/crawlers/implementations`.
 
