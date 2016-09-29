@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es2015"
+        "target": "es2015",
+        "sourceMap": true
     },
     "files": [
         "src/index.ts",
@@ -12,6 +13,7 @@
         "src/crawlers/implementations/ASUCrawler.ts",
         "src/crawlers/implementations/MITSloanCrawler.ts",
         "src/crawlers/implementations/OhioStateCrawler.ts",
+        "src/crawlers/implementations/OrgSyncCrawler.ts",
         "src/crawlers/implementations/StRoseCrawler.ts",
         "src/formatters/CsvOrganizationFormatter.ts",
         "src/models/IClub.ts",
