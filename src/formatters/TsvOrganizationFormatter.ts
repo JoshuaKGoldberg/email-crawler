@@ -41,13 +41,13 @@ export class TsvOrganizationFormatter implements IFormatter {
             }
 
             body.push(
-                [group.name, contact.name, contact.email]
+                [groupName, contact.name || "", contact.email]
                     .map((name: string): string => name.replace(/\s+/g, " "))
                     .join("\t"));
         }
 
         fs.writeFile(fileName + ".tsv", [header, body.join("\n")].join("\n"));
-        console.log("Saved to", fileName);
+        console.log("Saved to", fileName + ".tsv");
 
         return Promise.resolve();
     }
