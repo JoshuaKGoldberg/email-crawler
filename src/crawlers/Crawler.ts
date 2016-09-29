@@ -178,11 +178,11 @@ export abstract class Crawler<TResource> {
 
             const resource: IResourceDescriptor<TResource> = this.resources[i];
 
-            console.log(`\t[${i} of ${this.resources.length}] Opening ${resource.url}...`);
+            console.log(`\t[${i + 1} of ${this.resources.length}] Opening ${resource.url}...`);
 
             return rp(resource.url, resource.options)
                 .then((contents: string): Promise<TResource> => {
-                    console.log(`\tOpened ${resource.url}...`);
+                    console.log(`\t\tOpened ${resource.url}...`);
                     return this.loadResource(contents);
                 })
                 .then((parsed: TResource): Promise<void> => resource.callback.call(this, parsed, resource))

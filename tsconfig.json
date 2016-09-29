@@ -16,6 +16,8 @@
         "src/crawlers/implementations/OrgSyncCrawler.ts",
         "src/crawlers/implementations/StRoseCrawler.ts",
         "src/formatters/CsvOrganizationFormatter.ts",
+        "src/formatters/IFormatter.ts",
+        "src/formatters/TsvOrganizationFormatter.ts",
         "src/models/IClub.ts",
         "src/models/IContact.ts",
         "src/models/ISchool.ts"
