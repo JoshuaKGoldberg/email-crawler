@@ -11,6 +11,7 @@
         "src/crawlers/TextCrawler.ts",
         "src/crawlers/WebPageCrawler.ts",
         "src/crawlers/implementations/ASUCrawler.ts",
+        "src/crawlers/implementations/BostonUniversityCrawler.ts",
         "src/crawlers/implementations/DePaulCrawler.ts",
         "src/crawlers/implementations/MITSloanCrawler.ts",
         "src/crawlers/implementations/OhioStateCrawler.ts",
