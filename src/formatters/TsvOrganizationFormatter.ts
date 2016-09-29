@@ -34,16 +34,10 @@ export class TsvOrganizationFormatter implements IFormatter {
                 continue;
             }
 
-            // We only really want the first contact
+            // We only really want the first contact, and only if they have an email
             const contact: IContact = group.contacts[0];
-            if (!contact) {
+            if (!contact || !contact.email) {
                 continue;
-            }
-
-            for (const field in contact) {
-                if (!(field in contact) || !contact[field]) {
-                    continue;
-                }
             }
 
             body.push(
@@ -52,7 +46,8 @@ export class TsvOrganizationFormatter implements IFormatter {
                     .join("\t"));
         }
 
-        fs.writeFile(fileName, [header, body.join("\n")].join("\n"));
+        fs.writeFile(fileName + ".tsv", [header, body.join("\n")].join("\n"));
+        console.log("Saved to", fileName);
 
         return Promise.resolve();
     }
