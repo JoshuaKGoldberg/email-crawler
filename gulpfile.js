@@ -18,7 +18,7 @@ gulp.task("build", () => {
 
 gulp.task("lint", () => {
     const tsProject = typescript.createProject("tsconfig.json");
-    const program = tslint.createProgram("tsconfig.json")
+    const program = tslint.createProgram("tsconfig.json");
 
     return tsProject.src()
         .pipe(gulpTslint({

@@ -14,5 +14,5 @@ export interface IOrganization {
      */
     groups: {
         [i: string]: IGroup
-    }
+    };
 }

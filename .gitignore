@@ -1,3 +1,9 @@
+# Source files
 node_modules
 *.js
 !gulpfile.js
+
+# Outputs
+*.csv
+*.tsv
+*.xls
