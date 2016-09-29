@@ -43,17 +43,27 @@ interface IOrgSyncDescriptor {
  * Crawls an OrgSync website for organizations.
  */
 export class OrgSyncCrawler extends JsonCrawler<IOrgSyncResponse> {
+    /* tslint:disable max-line-length */
+    /**
+     * Format string for OrgSync URLs.
+     */
+    private static orgSyncFormat: string = "https://api.orgsync.com/api/v3/communities/{communityId}/portals?key={key}&all=true";
+    /* tslint:enable max-line-length */
+
     /**
      * Initializes a new instance of the OrgSyncCrawler class.
      * @param name  The name of the association the orgs are under
-     * @param url   The url to fetch list of orgs e.g. https://api.orgsync.com/api/v3/communities/334/portals?key=wI3OYsSEiIuWn5UbKuNKz2LgTLAsbpdIsi9lHGr0R2E&all=true
+     * @param communityId   The university's OrgSync community id.
+     * @param key   The key in the request.
      */
-    public constructor(name: string, url: string) {
+    public constructor(name: string, communityId: number | string, key: string) {
         super(name);
 
         this.addResource({
             callback: this.crawlOrganizationsResponse,
-            url: url
+            url: OrgSyncCrawler.orgSyncFormat
+                .replace("{communityId}", communityId.toString())
+                .replace("{key}", key)
         });
     }
 
@@ -82,14 +92,15 @@ export class OrgSyncOrganizationCrawler extends TextCrawler {
      * Initializes a new instance of the OrgSyncOrganizationCrawler class.
      * 
      * @param url   The organization's API URL.
+     * @param name   The organization's name.
      */
-    constructor(url: string, name: string) {
+    constructor(url: string, organizationName: string) {
         super(url);
 
         this.addResource(
             {
                 callback: this.crawlOrganizationResponse,
-                organization: name,
+                organization: organizationName,
                 options: {
                     headers: {
                         /* tslint:disable max-line-length */
@@ -117,6 +128,10 @@ export class OrgSyncOrganizationCrawler extends TextCrawler {
 
     /**
      * Crawls an organization's API response.
+     * 
+     * @param text   The response text.
+     * @param resource   The requested resource.
+     * @returns A Promise for adding the response's contacts.
      */
     private crawlOrganizationResponse(text: string, resource: IResourceDescriptor<string>): Promise<void> {
         const emails: string[] = text.match(/mailto\:.*\"/gi);
