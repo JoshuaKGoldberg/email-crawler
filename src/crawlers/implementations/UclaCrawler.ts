@@ -27,16 +27,22 @@ export class UclaCrawler extends WebPageCrawler {
     private crawlOrganizationsPage($: CheerioStatic, resource: IResourceDescriptor<CheerioStatic>): Promise<void> {
         const contacts: IContact[] = [];
 
-        $("#club-list li")
+        $("#club-list > li")
             .each(function (i: number, rowElement: CheerioElement): void {
-                const row: Cheerio = $(this).find("#club-meta-more");
-                const email: string = row.find(`a [href^="mailto:"]`).text();
+                const name: string = $(this).find("h1").text().trim();
+                const email: string = $(this).find(`a[href^="mailto:"]`).text().trim();
 
-                // contacts.push({ name, email });
+                if (name && email) {
+                    contacts.push({ name, email });
+                }
             });
 
         for (const contact of contacts) {
-            this.addContact(contact.name, contact.email);
+            this.addContact(
+                contact.name,
+                {
+                    email: contact.email
+                });
         }
 
         return Promise.resolve();
