@@ -17,6 +17,7 @@
         "src/crawlers/implementations/MITSloanCrawler.ts",
         "src/crawlers/implementations/OhioStateCrawler.ts",
         "src/crawlers/implementations/OrgSyncCrawler.ts",
+        "src/crawlers/implementations/RpiCrawler.ts",
         "src/crawlers/implementations/StRoseCrawler.ts",
         "src/crawlers/implementations/UclaCrawler.ts",
         "src/formatters/CsvOrganizationFormatter.ts",
